@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4 text-primary">💰 Add New Expense Entry</h2>
+
+    <form action="" method="post" class="card p-4 shadow-sm"enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Date -->
+        <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input type="date" name="Date" id="date" class="form-control" required>
+        </div>
+
+        <!-- Category -->
+      <div class="mb-3">
+    <label class="form-label">Category</label>
+    <select name="Category" id="category" class="form-control" required>
+        <option value="">-- Select Category --</option>
+        <option value="Aswin">Aswin</option>
+        <option value="Vimal">Vimal</option>
+        <option value="Office">Office</option>
+        <option value="Miscellaneous">Miscellaneous</option>
+        <option value="3D Printing">3D Printing</option>
+    </select>
+    
+</div>
+
+
+        <!-- Description -->
+       <div class="mb-3">
+    <label class="form-label">Description</label>
+    <select name="Description" id="desc" class="form-control">
+        <option value="">-- Select Description --</option>
+        <option value="Petrol">Petrol</option>
+        <option value="Food">Food</option>
+        <option value="Salary">Salary</option>
+        <option value="Filament">Filament</option>
+        <option value="EMI">EmI</option>
+    </select>
+</div>
+
+        <!-- Income -->
+        <div class="mb-3">
+            <label class="form-label">Income</label>
+            <input type="number" name="income" id="income" class="form-control" placeholder="Enter income amount">
+            
+        </div>
+
+
+        <!-- Income Source -->
+        <div class="mb-3" id="incomeSourceDiv" style="display:none;">
+            <label class="form-label">Income Source</label>
+            <select name="income_source" id="incomeSourceSelect" class="form-select">
+                <option value="">Select Source</option>
+                <option value="Salary">Salary</option>
+                <option value="Project">Project</option>
+                <option value="Client">Client</option>
+                <option value="Rent">Rent</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="text" name="income_source_other" id="incomeSourceOther" class="form-control mt-2" placeholder="Enter other source" style="display:none;">
+        </div>
+        <div class="mb-3">
+    <label class="form-label">Upload Bill (PDF)</label>
+    <input type="file" name="bill_pdf" accept="application/pdf" class="form-control">
+</div>
+
+        <!-- Expense -->
+        <div class="mb-3">
+            <label class="form-label">Expense</label>
+            <input type="number" name="Expense" id="expense" class="form-control" placeholder="Enter expense amount">
+        </div>
+
+        <!-- Expense Source -->
+        <div class="mb-3" id="expenseSourceDiv" style="display:none;">
+            <label class="form-label">Expense Source</label>
+            <select name="expense_source" id="expenseSourceSelect" class="form-select">
+                <option value="">Select Expense Type</option>
+                <option value="Food">Food</option>
+                <option value="Travel">Travel</option>
+                <option value="Bills">Bills</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Other">Other</option>
+            </select>
+            <input type="text" name="expense_source_other" id="expenseSourceOther" class="form-control mt-2" placeholder="Enter other expense" style="display:none;">
+        </div>
+
+        <!-- ❌ Removed manual Balance input -->
+        <!-- Balance will be automatically calculated in the backend -->
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success px-4">➕ Add Expense</button>
+            <a href="{% url 'homepage2' %}" class="btn btn-secondary px-4">↩ Back</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Auto-fill today's date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+
+    // Income section logic
+    const incomeInput = document.getElementById('income');
+    const incomeSourceDiv = document.getElementById('incomeSourceDiv');
+    const incomeSourceSelect = document.getElementById('incomeSourceSelect');
+    const incomeSourceOther = document.getElementById('incomeSourceOther');
+
+    incomeInput.addEventListener('input', () => {
+        incomeSourceDiv.style.display = (incomeInput.value && incomeInput.value > 0) ? 'block' : 'none';
+    });
+
+    incomeSourceSelect.addEventListener('change', () => {
+        incomeSourceOther.style.display = (incomeSourceSelect.value === "Other") ? 'block' : 'none';
+        if (incomeSourceSelect.value !== "Other") incomeSourceOther.value = "";
+    });
+
+    // Expense section logic
+    const expenseInput = document.getElementById('expense');
+    const expenseSourceDiv = document.getElementById('expenseSourceDiv');
+    const expenseSourceSelect = document.getElementById('expenseSourceSelect');
+    const expenseSourceOther = document.getElementById('expenseSourceOther');
+
+    expenseInput.addEventListener('input', () => {
+        expenseSourceDiv.style.display = (expenseInput.value && expenseInput.value > 0) ? 'block' : 'none';
+    });
+
+    expenseSourceSelect.addEventListener('change', () => {
+        expenseSourceOther.style.display = (expenseSourceSelect.value === "Other") ? 'block' : 'none';
+        if (expenseSourceSelect.value !== "Other") expenseSourceOther.value = "";
+    });
+</script>
+
+</body>
+</html>

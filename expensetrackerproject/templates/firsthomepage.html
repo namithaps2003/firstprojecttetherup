@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker Dashboard</title>
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+  <style>
+    .sidebar {
+      background-color: #0d6efd;
+      color: white;
+      min-height: 100vh; /* Full height */
+      padding-top: 20px;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin: 5px 0;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover {
+      background-color: #084298;
+    }
+
+
+.logo {
+  height: 100vh;        /* full viewport height */
+  padding: 0;
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;     /* fills the div */
+  display: block;
+}
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      
+      <!-- Sidebar -->
+      <div class="col-lg-2 col-md-3 sidebar">
+        <div >💰 ExpenseTracker</div>
+        <a href="{% url 'homepage2' %}">🏠 Dashboard</a>
+        <a href="{% url 'addexpense' %}">➕ Add Expense</a>
+        <a href="{% url 'create_emi' %}">📊 Add EMI</a>
+        <a href="{% url 'billview' %}">📁 Generate Invoice</a>
+        <a href="{% url 'addsalary' %}">⚙️ Manage Salary</a>
+        <a href="{% url 'logout' %}">🚪 Logout</a>
+      </div>
+
+      <!-- Main Content -->
+     <div  class="col-lg-10 col-md-9 logo">
+    <img src="{% static 'images/logo.png' %}" alt="Logo" />
+  </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

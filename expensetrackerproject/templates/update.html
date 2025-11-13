@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Expense</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4 text-primary">✏️ Update Expense Entry</h2>
+
+    <form method="post" class="card p-4 shadow-sm">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input type="date" name="Date" class="form-control" value="{{ entry.date|date:'Y-m-d' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <input type="text" name="Category" class="form-control" value="{{ entry.category }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <input type="text" name="Description" class="form-control" value="{{ entry.description }}">
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Income</label>
+                <input type="number" step="0.01" name="income" class="form-control" value="{{ entry.income }}">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Income Source</label>
+                <input type="text" name="income_source" class="form-control" value="{{ entry.income_source }}">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Expense</label>
+                <input type="number" step="0.01" name="Expense" class="form-control" value="{{ entry.expense }}">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Expense Source</label>
+                <input type="text" name="expense_source" class="form-control" value="{{ entry.expense_source }}">
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Balance</label>
+            <input type="number" step="0.01" name="Balance" class="form-control" value="{{ entry.balance }}">
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-success">💾 Save Changes</button>
+            <a href="{% url 'homepage2' %}" class="btn btn-secondary">↩ Cancel</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

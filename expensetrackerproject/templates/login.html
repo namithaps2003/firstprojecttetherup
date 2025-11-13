@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tetherup | Sign In</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background: #ffffff;
+      padding: 40px 35px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 360px;
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .login-container:hover {
+      transform: translateY(-5px);
+    }
+
+    .logo {
+      width: 70px;
+      height: 70px;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      color: #1e3a8a;
+      margin-bottom: 25px;
+      font-size: 24px;
+      letter-spacing: 0.5px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      color: #1e40af;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 15px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #1d4ed8;
+      outline: none;
+      box-shadow: 0 0 5px rgba(30, 64, 175, 0.3);
+    }
+
+    button {
+      width: 100%;
+      background: #1e40af;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #475569;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <!-- Organization logo (optional) -->
+    <img src="{% static 'images/logo.png' %}" alt="Tetherup Logo" class="logo">
+
+    <h2>Welcome to Tetherup</h2>
+
+    <form method="POST" action="">
+      {% csrf_token %}
+      <label for="username">Username</label>
+      <input type="text" name="username" required>
+
+      <label for="password">Password</label>
+      <input type="password" name="password" required>
+
+      <button type="submit">Login</button>
+    </form>
+
+    {% if messages %}
+      {% for msg in messages %}
+        <p class="error">{{ msg }}</p>
+      {% endfor %}
+    {% endif %}
+
+    <div class="footer">
+      © 2025 Tetherup. All rights reserved.
+    </div>
+  </div>
+
+</body>
+</html>

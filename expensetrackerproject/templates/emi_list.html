@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All EMI Plans</title>
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        table { width: 80%; border-collapse: collapse; margin: auto; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        a, button { text-decoration: none; color: white; padding: 6px 10px; border-radius: 5px; }
+        .view { background: #007bff; }
+        .delete { background: #dc3545; }
+        .btn {
+    text-decoration: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+}
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">📋 All EMI Plans</h2>
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Bank</th>
+            <th>Monthly Amount</th>
+            <th>Months</th>
+            <th>Start Date</th>
+            <th>Actions</th>
+        </tr>
+        {% for plan in plans %}
+        <tr>
+            <td>{{ plan.title }}</td>
+            <td>{{ plan.bank }}</td>
+            <td>₹{{ plan.amount_per_month }}</td>
+            <td>{{ plan.months }}</td>
+            <td>{{ plan.start_date }}</td>
+            <td>
+                <a href="{% url 'emi_status' plan.id %}" class="view">View</a>
+                <a href="{% url 'delete_emi' plan.id %}" class="delete"
+                   onclick="return confirm('Are you sure you want to delete this EMI plan?');">
+                   Delete
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">No EMI plans created yet.</td></tr>
+        {% endfor %}
+    </table>
+    <br>
+    <div style="text-align:center;">
+        <a href="{% url 'create_emi' %}" style="background:#28a745; color:white; padding:10px 20px; border-radius:5px;">+ Add New EMI</a>
+        <a href="{% url 'homepage2' %}" class="btn btn-danger">↩ Cancel</a>
+    </div>
+</body>
+</html>
