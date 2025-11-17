@@ -1,0 +1,259 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TetherUp Invoice</title>
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f5f7fb;
+        margin: 30px;
+        color: #333;
+    }
+
+    .billheader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .bill-of-supply {
+        color: #6a0dad;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .addressandlogo {
+        display: flex;
+        justify-content: space-between;
+        background: #fff;
+        padding: 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .addressandlogo img {
+        height: 120px;
+        width: 120px;
+    }
+
+    .billnumberandinvoicedate, .customerdetails {
+        display: flex;
+        justify-content: space-between;
+        background: #fff;
+        padding: 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+
+    .customerdetails input {
+        padding: 8px;
+        margin: 5px 0;
+        width: 250px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+        border: 1px solid #e0e0e0;
+        padding: 10px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #6a0dad;
+        color: white;
+        font-weight: normal;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    input[type="text"], input[type="number"], select {
+        width: 90%;
+        padding: 6px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .btn-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    button {
+        background-color: #6a0dad;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+        transition: 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #520a91;
+    }
+
+    #totalAmount {
+        font-weight: bold;
+        color: #6a0dad;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="billheader">
+    <h2 class="bill-of-supply">BILL OF SUPPLY</h2>
+    <h3>ORIGINAL FOR RECEIPT</h3>
+</div>
+
+<div class="addressandlogo">
+    <div>
+        <h3 style="margin-bottom: 10px;">Supplier: TetherUp</h3>
+        <p>
+            GSTIN: 29ABCDE1234F2Z5<br>
+            Address: Marian Technology Business Incubator,<br>
+            Trivandrum North, Kerala - 695582<br>
+            Phone: +91 9400771449, 6282599376<br>
+            Email: <a href="mailto:sales@tetherup.in">sales@tetherup.in</a><br>
+            Website: <a href="https://www.tetherup.in">www.tetherup.in</a>
+        </p>
+    </div>
+    <img src="{% static 'images/logo.png' %}" alt="TetherUp Logo" />
+</div>
+
+<form id="invoiceForm" method="POST" action="{% url 'generate_pdf2' %}">
+{% csrf_token %}
+
+<div class="billnumberandinvoicedate">
+    <div>
+        <h3>Bill No: <span id="billNumber">BILL-001</span></h3>
+    </div>
+    <div>
+        <h3>Invoice Date: <span id="invoiceDate">{{ invoice_date|default:"--" }}</span></h3>
+    </div>
+</div>
+
+<div class="customerdetails">
+    <div>
+        <h3>Customer Details</h3>
+        <label>Name:</label><br>
+        <input type="text" name="customer_name" required><br>
+        <label>Address:</label><br>
+        <input type="text" name="customer_address" required>
+    </div>
+</div>
+
+<table id="billTable">
+    <thead>
+        <tr>
+            <th>S.No</th>
+            <th>Item</th>
+            <th>Rate/Item</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+            <th>Tax %</th>
+            <th>Tax Amount</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+    <tfoot>
+        <tr>
+            <td colspan="6" style="text-align:right;">Total (with Tax)</td>
+            <td id="totalAmount">0.00</td>
+            <td></td>
+        </tr>
+    </tfoot>
+</table>
+
+<div class="btn-container">
+    <button type="button" onclick="addRow()">➕ Add Item</button>
+   
+  <!-- Your form fields -->
+  <button type="submit" class="btn btn-primary">🧾 Generate PDF</button>
+
+
+
+
+    <a href="{% url 'homepage2' %}" class="btn btn-secondary">↩ Cancel</a>
+</div>
+</form>
+
+
+<script>
+let serial = 1;
+
+function addRow() {
+    const tbody = document.querySelector('#billTable tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>${serial}</td>
+        <td><input type="text" name="items[]" placeholder="Item Name" required></td>
+        <td><input type="number" name="rates[]" placeholder="Rate" required></td>
+        <td><input type="number" name="qtys[]" placeholder="Qty" required></td>
+        <td>0.00</td>
+        <td>
+            <select name="taxes[]">
+                <option value="0">0%</option>
+                <option value="18" selected>18%</option>
+            </select>
+        </td>
+        <td>0.00</td>
+        <td><button type="button" onclick="deleteRow(this)">❌</button></td>
+    `;
+    tbody.appendChild(row);
+    serial++;
+    calculateTotal();
+}
+
+function calculateTotal() {
+    let total = 0;
+    document.querySelectorAll('#billTable tbody tr').forEach(row => {
+        const rate = parseFloat(row.cells[2].querySelector('input').value) || 0;
+        const qty = parseFloat(row.cells[3].querySelector('input').value) || 0;
+        const taxPercent = parseFloat(row.cells[5].querySelector('select').value) || 0;
+
+        const amount = rate * qty;
+        const taxAmount = (amount * taxPercent) / 100;
+        const totalWithTax = amount + taxAmount;
+
+        row.cells[4].innerText = amount.toFixed(2);
+        row.cells[6].innerText = taxAmount.toFixed(2);
+
+        total += totalWithTax;
+    });
+    document.getElementById('totalAmount').innerText = total.toFixed(2);
+}
+
+function deleteRow(btn) {
+    btn.closest('tr').remove();
+    calculateTotal();
+}
+
+document.querySelector('#billTable').addEventListener('input', calculateTotal);
+document.querySelector('#billTable').addEventListener('change', calculateTotal);
+</script>
+
+</body>
+</html>

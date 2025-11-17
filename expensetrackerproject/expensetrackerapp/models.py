@@ -51,6 +51,7 @@ class EMIPayment(models.Model):
 
     def __str__(self):
         return f"Month {self.month_number} - {'Paid' if self.is_paid else 'Pending'}"
+    
 class Salary(models.Model):
     employee_name = models.CharField(max_length=100)
     position = models.CharField(max_length=100,default='Employee')

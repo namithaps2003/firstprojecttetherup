@@ -189,10 +189,17 @@
 
 <div class="btn-container">
     <button type="button" onclick="addRow()">➕ Add Item</button>
-    <button type="submit">📝 Generate PDF</button>
+   
+  <!-- Your form fields -->
+  <button type="submit" class="btn btn-primary">🧾 Generate PDF</button>
+
+
+
+
     <a href="{% url 'homepage2' %}" class="btn btn-secondary">↩ Cancel</a>
 </div>
 </form>
+
 
 <script>
 let serial = 1;

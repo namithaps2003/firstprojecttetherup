@@ -34,6 +34,7 @@ from datetime import datetime
 
 
 
+@login_required(login_url='login')
 def create_emi(request):
     if request.method == 'POST':
         title = request.POST.get('tittle')
@@ -62,6 +63,7 @@ def create_emi(request):
     return render(request, 'emi.html')
 
 
+@login_required(login_url='login')
 def emi_status(request, plan_id):
     plan = EMIPlan.objects.get(id=plan_id)
     payments = plan.payments.all().order_by('month_number')
@@ -74,6 +76,7 @@ def mark_paid(request, payment_id):
     payment.save()
     return redirect('emi_status', plan_id=payment.plan.id)
 
+@login_required(login_url='login')
 def emi_list(request):
     plans = EMIPlan.objects.all().order_by('-id')
     return render(request, 'emi_list.html', {'plans': plans})
@@ -88,6 +91,7 @@ def delete_emi(request, plan_id):
     plan = get_object_or_404(EMIPlan, id=plan_id)
     plan.delete()
     return redirect('emi_list')
+
 
 def index(request):
     if request.method == "POST":
@@ -107,6 +111,8 @@ def index(request):
 
     return render(request, 'login.html')
     return render(request, 'login.html')
+
+@login_required(login_url='login')
 def addexpense(request):
     if request.method == 'POST':
         date = request.POST.get('Date')
@@ -178,6 +184,7 @@ def deleteentry(request, id):
     return render(request, 'deleteview.html', {'expense': expense})
 
 
+@login_required(login_url='login')
 def homepage2(request):
     now = datetime.now()
     current_year = now.year
@@ -240,6 +247,10 @@ def homepage2(request):
 def billview(request):
     
     return render(request, 'bill.html')
+def billview2(request):
+    
+    return render(request, 'ashwin.html')
+
 
 def invoice_page(request):
     return render(request, 'bill.html')
@@ -274,7 +285,12 @@ def viewexpenses(request):
 def logout_view(request):
     logout(request)
     return redirect('index')  # or 'login' if you have a login view
-
+from django.conf import settings
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
+import os
+from datetime import datetime
 
 def generate_pdf(request):
     if request.method == 'POST':
@@ -285,7 +301,7 @@ def generate_pdf(request):
 
         item_list = []
         total_with_tax = 0
-        has_tax = False  # ✅ Track if any tax is applied
+        has_tax = False
 
         for i in range(len(items)):
             rate = float(rates[i])
@@ -312,6 +328,10 @@ def generate_pdf(request):
 
         bill_number = get_next_bill_number()
 
+        # ✅ Local static paths (works with ngrok + localhost)
+        logo_path = os.path.join(settings.BASE_DIR, 'ExpenseTracker', 'static', 'images', 'logo.png')
+        signature_path = os.path.join(settings.BASE_DIR, 'ExpenseTracker', 'static', 'images', 'signature.png')
+
         context = {
             'bill_number': bill_number,
             'invoice_date': datetime.today().strftime("%d-%m-%Y"),
@@ -319,23 +339,111 @@ def generate_pdf(request):
             'customer_address': request.POST.get('customer_address', ''),
             'items': item_list,
             'total_amount_with_tax': f"{total_with_tax:.2f}",
-            'logo_path': request.build_absolute_uri(static('images/logo.png')),
-            'signature_path': request.build_absolute_uri(static('images/signature.png')),
-            'has_tax': has_tax,  # ✅ Pass flag to template
+            'logo_path': logo_path,
+            'signature_path': signature_path,
+            'has_tax': has_tax,
         }
 
         html = render_to_string('bill_pdf.html', context)
-
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{bill_number}.pdf"'
 
-        pisa_status = pisa.CreatePDF(html, dest=response)
+        # ✅ Handles local static files (for ngrok/local)
+        def link_callback(uri, rel):
+            if uri.startswith(settings.STATIC_URL):
+                # point to app-level static
+                path = os.path.join(settings.BASE_DIR, 'expensetrackerapp', uri.replace(settings.STATIC_URL, ""))
+            else:
+                path = uri
+            if not os.path.isfile(path):
+                print(f"⚠️ Missing file: {path}")
+            return path
+
+        pisa_status = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+
         if pisa_status.err:
             return HttpResponse('Error generating PDF <pre>' + html + '</pre>')
         return response
+        return HttpResponse("Invalid request method. Only POST allowed.")
+    
+def generate_pdf2(request):
+    if request.method == 'POST':
+        items = request.POST.getlist('items[]')
+        rates = request.POST.getlist('rates[]')
+        qtys = request.POST.getlist('qtys[]')
+        taxes = request.POST.getlist('taxes[]')
+
+        item_list = []
+        total_with_tax = 0
+        has_tax = False
+
+        for i in range(len(items)):
+            rate = float(rates[i])
+            qty = float(qtys[i])
+            tax_percent = float(taxes[i]) if i < len(taxes) else 0
+
+            amount = rate * qty
+            tax_amount = (amount * tax_percent) / 100
+            total_item = amount + tax_amount
+            total_with_tax += total_item
+
+            if tax_percent > 0:
+                has_tax = True
+
+            item_list.append({
+                'name': items[i],
+                'rate': f"{rate:.2f}",
+                'qty': qty,
+                'amount': f"{amount:.2f}",
+                'tax_percent': int(tax_percent),
+                'tax_amount': f"{tax_amount:.2f}",
+                'total_with_tax': f"{total_item:.2f}",
+            })
+
+        bill_number = get_next_bill_number()
+
+        # ✅ Local static paths (works with ngrok + localhost)
+        logo_path = os.path.join(settings.BASE_DIR, 'ExpenseTracker', 'static', 'images', 'logo.png')
+        signature_path = os.path.join(settings.BASE_DIR, 'ExpenseTracker', 'static', 'images', 'signature.png')
+
+        context = {
+            'bill_number': bill_number,
+            'invoice_date': datetime.today().strftime("%d-%m-%Y"),
+            'customer_name': request.POST.get('customer_name', ''),
+            'customer_address': request.POST.get('customer_address', ''),
+            'items': item_list,
+            'total_amount_with_tax': f"{total_with_tax:.2f}",
+            'logo_path': logo_path,
+            'signature_path': signature_path,
+            'has_tax': has_tax,
+        }
+
+        html = render_to_string('ashwinbill.html', context)
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{bill_number}.pdf"'
+
+        # ✅ Handles local static files (for ngrok/local)
+        def link_callback(uri, rel):
+            if uri.startswith(settings.STATIC_URL):
+                # point to app-level static
+                path = os.path.join(settings.BASE_DIR, 'expensetrackerapp', uri.replace(settings.STATIC_URL, ""))
+            else:
+                path = uri
+            if not os.path.isfile(path):
+                print(f"⚠️ Missing file: {path}")
+            return path
+
+        pisa_status = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+
+        if pisa_status.err:
+            return HttpResponse('Error generating PDF <pre>' + html + '</pre>')
+        return response
+
+@login_required(login_url='login')
 def firsthomepage(request):
         return render(request, 'firsthomepage.html')
 
+@login_required(login_url='login')
 def addsalary(request):
     if request.method == 'POST':
         employee_name = request.POST.get('employee_name')
@@ -359,6 +467,4 @@ def addsalary(request):
 def salary_status(request):
     salaries = Salary.objects.all().order_by('-id')
     return render(request, 'salarystatus.html', {'salaries': salaries})
-
-
 

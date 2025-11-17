@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Invoice PDF</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid #000;
+        padding: 5px;
+        text-align: left;
+    }
+    .billheader {
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<table style="width: 100%; border-collapse: collapse; border: 0; margin-bottom: 20px;">
+<tr>
+    <td style="text-align: left; border: 0; color: blueviolet;">
+        <h2>BILL OF SUPPLY</h2>
+    </td>
+    <td style="text-align: right; border: 0;">
+        <h3>ORIGINAL FOR RECEIPT</h3>
+    </td>
+</tr>
+</table>
+
+<!-- Supplier Info -->
+<table style="width: 100%; margin-bottom: 20px; border-collapse: collapse; border: 0;">
+<tr>
+    <td style="text-align: left; font-size: 13px; line-height: 1.4; border: 0;">
+        TetherUp<br>
+        GSTIN: 29ABCDE1234F2Z5<br>
+        Address: MARIAN TECHNOLOGY BUSINESS INCUBATOR<br>
+        Trivandrum North KERALA, 695582<br>
+        Phone: +91 9400771449, 6282599376<br>
+        Email: sales@tetherup.in
+    </td>
+    <td style="text-align: right; border: 0;">
+        <img src="https://namithaps2003.github.io/Expense-Tracker/expensetrackerproject/expensetrackerapp/static/images/logo.png" alt="Logo" style="height: 100px; width: 100px; border: 0;">
+    </td>
+</tr>
+</table>
+
+<!-- Invoice Info -->
+<h3>Bill Number: {{ bill_number }}</h3>
+<h3>Invoice Date: {{ invoice_date }}</h3>
+
+<!-- Customer Info -->
+<table style="width: 100%; margin-bottom: 20px; border: 0;">
+    <tr>
+        <td style="width: 20%; font-weight: bold; border: 0;"><h3>Billing Address:</h3></td>
+        <td style="width: 80%; border: 0;"><h4>{{ customer_address }}</h4></td>
+    </tr>
+</table>
+
+<table style="font-size: 14px;">
+    <thead>
+        <tr>
+            <th>S.No</th>
+            <th>Item</th>
+            <th>Rate</th>
+            <th>Qty</th>
+            <th>Amount</th>
+            {% if has_tax %}
+                <th>Tax %</th>
+                <th>Tax Amount</th>
+            {% endif %}
+            <th>Total{% if has_tax %} (Incl. Tax){% endif %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.rate }}</td>
+            <td>{{ item.qty }}</td>
+            <td>{{ item.amount }}</td>
+            {% if has_tax %}
+                <td>{{ item.tax_percent }}%</td>
+                <td>{{ item.tax_amount }}</td>
+            {% endif %}
+            <td>{{ item.total_with_tax }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            {% if has_tax %}
+                <td colspan="7" style="text-align:right;">Total Amount</td>
+            {% else %}
+                <td colspan="5" style="text-align:right;">Total Amount</td>
+            {% endif %}
+            <td>{{ total_amount_with_tax }}</td>
+        </tr>
+    </tfoot>
+</table>
+
+<!-- Signature -->
+<table style="width: 100%; margin-top: 30px; border: 0;">
+    <tr>
+        <td style="text-align: left; border: 0;">
+            <h3>Thank you for your business!</h3>
+        </td>
+        <td style="text-align: right; border: 0;">
+            <div style="text-align: center;">
+                <!-- <img src="https://namithaps2003.github.io/Expense-Tracker/expensetrackerproject/expensetrackerapp/static/images/signature.png" alt="Signature" style="height: 80px; width: auto; margin-bottom: 5px;"><br> -->
+                <img src="https://namithaps2003.github.io/Expense-Tracker/ashwinsign.jpeg" alt="Signature" style="height: 80px; width: auto; margin-bottom: 5px;">
+                <br>
+                <h2>Authorized Signature</h2>
+            </div>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
